@@ -37,10 +37,10 @@ token_specs = [
 regex_geral = '|'.join(f'(?P<{nome}>{padrao})' for nome, padrao in token_specs)
 padrao_compilado = re.compile(regex_geral)
 
-unicos = []  # tabela de símbolos
+unicos = []
 
 def contar_linhas(codigo, ponto_parada):
-    contador, conta_letra = 0
+    contador = conta_letra = 0
     for i in range(ponto_parada):
         conta_letra = conta_letra + 1
         if codigo[i] == '\n':
@@ -51,18 +51,16 @@ def contar_linhas(codigo, ponto_parada):
 def analisador_lexico(codigo):
     tokens = []
     for match in padrao_compilado.finditer(codigo):
-        print(match.span())
         tipo = match.lastgroup
         lexema = match.group()
-        
-
+    
         if tipo == 'ESPACO':
             continue
         elif tipo == 'DESCONHECIDO':
-            contar_linhas(codigo, match.start()) = linha, posicao = contar_linhas(codigo, match.start())
-            erro = f"Caractere inválido: '{lexema}' na linha {}, posição {match.start()}"
+            linha, posicao = contar_linhas(codigo, match.start())
+            erro = f"Caractere inválido: '{lexema}' na linha {linha}, posição {posicao}"
             print(erro)
-            break
+            return
 
         if tipo == 'ID' or tipo == 'NUM_REAL':
             if lexema not in unicos:
@@ -71,15 +69,3 @@ def analisador_lexico(codigo):
         tokens.append((tipo, lexema))
     return tokens
 
-# Lendo do arquivo inteiro (não linha a linha, pra pegar tokens quebrados entre linhas)
-with open('correto.php.txt') as arquivo:
-    codigo = arquivo.read()
-
-tokens = analisador_lexico(codigo)
-
-print(f"{'TIPO':<15}{'LEXEMA'}")
-print("-" * 30)
-for tipo, lexema in tokens:
-    print(f"{tipo:<15}{lexema}")
-
-print("\nTabela de símbolos:", unicos)

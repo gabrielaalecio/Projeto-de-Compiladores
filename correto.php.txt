@@ -1,6 +1,6 @@
 <?php
 $cont;
-$a,$b,$c;aaaaaaaaa
+$a,$b,$c;
 $cont = 10;
 while ($cont > 0) {
   $a = floatval(readline());
