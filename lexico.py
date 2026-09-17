@@ -39,6 +39,7 @@ padrao_compilado = re.compile(regex_geral)
 
 unicos = []
 
+#Conta as linhas e a posição do caractere inválido
 def contar_linhas(codigo, ponto_parada):
     contador = conta_letra = 0
     for i in range(ponto_parada):
@@ -48,6 +49,7 @@ def contar_linhas(codigo, ponto_parada):
             contador += 1
     return contador + 1, conta_letra + 1
 
+#Analisador léxico que percorre o código e identifica os tokens, armazenando-os em uma lista e retorna erro
 def analisador_lexico(codigo):
     tokens = []
     for match in padrao_compilado.finditer(codigo):
@@ -60,7 +62,7 @@ def analisador_lexico(codigo):
             linha, posicao = contar_linhas(codigo, match.start())
             erro = f"Caractere inválido: '{lexema}' na linha {linha}, posição {posicao}"
             print(erro)
-            return
+            return None
 
         if tipo == 'ID' or tipo == 'NUM_REAL':
             if lexema not in unicos:

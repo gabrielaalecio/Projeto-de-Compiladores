@@ -1,2 +1,3 @@
 def analisador_sintatico(tokens):
-    print("aaa")
+    for token in tokens:
+        print(token)
