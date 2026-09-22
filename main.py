@@ -1,4 +1,4 @@
-import lexico, sintatico, semantico
+import lexico, sintatico
 
 with open('correto.php.txt') as arquivo:
     codigo = arquivo.read()
@@ -10,6 +10,3 @@ if tokens is None:
 
 #Analisador Sintático - Ascendente
 codigo_objeto = sintatico.analisador_sintatico(tokens)
-
-#Analisador Semântico
-resultado = semantico.analisador_semantico(codigo_objeto)
