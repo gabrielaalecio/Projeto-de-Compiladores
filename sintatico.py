@@ -3,8 +3,9 @@ from enum import Enum
 class Status(Enum):
     SHIFT = "S"
     REDUZ = "R"
+    DESVIO = "D"
 
-ACTION = {
+ESTADOS = {
     0: {"ABREPHP": (Status.SHIFT, 1)},
     1: {
         "FECHAPHP": (Status.REDUZ, 10),
@@ -12,10 +13,17 @@ ACTION = {
         "ID": (Status.SHIFT, 5),
         "IF": (Status.SHIFT, 3),
         "WHILE": (Status.SHIFT, 7),
-        "ECHO": (Status.SHIFT, 4)
+        "ECHO": (Status.SHIFT, 4),
+        "DC": (Status.DESVIO, 1),
+        "VAR": (Status.DESVIO, 79),
+        "VARS":(Status.DESVIO, 80),
+        "CMDS": (Status.DESVIO, 17),
+        "CMD_COND": (Status.DESVIO, 6),
+        "CMD": (Status.DESVIO, 2)
         },
     2: {
-        "PONTOVIRG": (Status.SHIFT, 9)
+        "PONTOVIRG": (Status.SHIFT, 9),
+        "MAIS_CMDS": (Status.DESVIO, 21)
     },
     3: {
         "ABRE_PAR": (Status.SHIFT, 10)
@@ -26,11 +34,23 @@ ACTION = {
     5: {
         "VIRGULA": (Status.SHIFT, 14),
         "PONTOVIRG": (Status.REDUZ, 6),
-        "ATRIB": (Status.SHIFT, 13)
+        "ATRIB": (Status.SHIFT, 13),
+        "MAIS_VAR": (Status.DESVIO, 15),
+        "RESTO_IDENT": (Status.DESVIO, 12)
     },
     6: {
+        "IF": (Status.SHIFT, 3),
+        "WHILE": (Status.SHIFT, 7),
+        "ECHO": (Status.SHIFT, 4),
+        "ID": (Status.SHIFT, 5),
+        "VAR": (Status.DESVIO, 79),
+        "VARS":(Status.DESVIO, 80),
         "FECHAPHP": (Status.REDUZ, 10),
-        "FECHA_CHAVE": (Status.REDUZ, 10)
+        "FECHA_CHAVE": (Status.REDUZ, 10),
+        "DC": (Status.DESVIO, 16), 
+        "CMDS": (Status.DESVIO, 56),
+        "CMD_COND": (Status.DESVIO, 6),
+        "CMD": (Status.DESVIO, 2)
     },
     7: {
         "ABRE_PAR": (Status.SHIFT, 11)
@@ -40,19 +60,37 @@ ACTION = {
     },
     9: {
         "FECHAPHP": (Status.REDUZ, 10),
-        "FECHA_CHAVE": (Status.REDUZ, 10)
+        "FECHA_CHAVE": (Status.REDUZ, 10),
+        "DC": (Status.DESVIO, 16),
+        "CMDS": (Status.DESVIO, 22),
+        "CMD_COND": (Status.DESVIO, 6),
+        "ID": (Status.SHIFT, 5),
+        "IF": (Status.SHIFT, 3),
+        "WHILE": (Status.SHIFT, 7),
+        "ECHO": (Status.SHIFT, 4),
+        "VAR": (Status.DESVIO, 79),
+        "VARS":(Status.DESVIO, 80),
+        "CMD":(Status.DESVIO, 2)
     },
     10: {
         "ID": (Status.REDUZ, 31),
         "ABRE_PAR": (Status.REDUZ, 31),
         "MENOS": (Status.SHIFT, 50),
-        "NUM_REAL": (Status.REDUZ, 31)
+        "NUM_REAL": (Status.REDUZ, 31),
+        "CONDICAO": (Status.DESVIO, 23),
+        "EXPRESSAO": (Status.DESVIO, 57),
+        "TERMO": (Status.DESVIO, 38),
+        "OP_UN": (Status.DESVIO, 41)
     },
     11: {
         "ID": (Status.REDUZ, 31),
         "ABRE_PAR": (Status.REDUZ, 31),
         "MENOS": (Status.SHIFT, 50),
-        "NUM_REAL": (Status.REDUZ, 31)
+        "NUM_REAL": (Status.REDUZ, 31),
+        "CONDICAO": (Status.DESVIO, 24),
+        "EXPRESSAO": (Status.DESVIO, 57),
+        "TERMO": (Status.DESVIO, 38),
+        "OP_UN": (Status.DESVIO, 41)
     },
     12: {
         "PONTOVIRG": (Status.REDUZ, 15)
@@ -62,10 +100,14 @@ ACTION = {
         "ABRE_PAR": (Status.REDUZ, 31),
         "FLOATVAL": (Status.SHIFT, 61),
         "MENOS": (Status.SHIFT, 50),
-        "NUM_REAL": (Status.REDUZ, 31)
+        "NUM_REAL": (Status.REDUZ, 31),
+        "EXP_IDENT": (Status.DESVIO, 37),
+        "EXPRESSAO": (Status.DESVIO, 60),
+        "TERMO": (Status.DESVIO, 38),
+        "OP_UN": (Status.DESVIO, 41)
     },
     14: {
-        "ID": (Status.REDUZ, 36)
+        "ID": (Status.SHIFT, 36)
     },
     15: {
         "PONTOVIRG": (Status.REDUZ, 4)
@@ -75,10 +117,10 @@ ACTION = {
         "FECHA_CHAVE": (Status.REDUZ, 9)
     },
     17: {
-        "ABREPHP": (Status.SHIFT, 18)
+        "FECHAPHP": (Status.SHIFT, 18)
     },
     18: {
-        "FIMDECADEIA": "SUCESSO"
+        "FIMDECADEIA": ("SUCESSO", 9999)
     },
     19: {
         "PHP_EOL": (Status.SHIFT, 20)
@@ -101,7 +143,7 @@ ACTION = {
         "FECHA_PAR": (Status.SHIFT, 26)
     },
     25: {
-        "FECHA_CHAVE": (Status.SHIFT, 28)
+        "ABRE_CHAVE": (Status.SHIFT, 28)
     },
     26: {
         "ABRE_CHAVE": (Status.SHIFT, 27)
@@ -110,11 +152,29 @@ ACTION = {
         "FECHAPHP": (Status.REDUZ, 10),
         "IF": (Status.SHIFT, 3),
         "FECHA_CHAVE": (Status.REDUZ, 10),
-        "WHILE": (Status.REDUZ, 10)
+        "DC": (Status.DESVIO, 16),
+        "CMDS": (Status.DESVIO, 32),
+        "CMD_COND": (Status.DESVIO, 6),
+        "CMD": (Status.DESVIO, 2),
+        "ID": (Status.SHIFT, 5),
+        "WHILE": (Status.SHIFT, 7),
+        "ECHO": (Status.SHIFT, 4),
+        "VAR": (Status.DESVIO, 79),
+        "VARS":(Status.DESVIO, 80)
     },
     28: {
         "FECHAPHP": (Status.REDUZ, 10),
-        "FECHA_CHAVE": (Status.REDUZ, 10)
+        "FECHA_CHAVE": (Status.REDUZ, 10),
+        "DC": (Status.DESVIO, 16),
+        "IF": (Status.SHIFT, 3),
+        "CMDS": (Status.DESVIO, 29),
+        "CMD_COND": (Status.DESVIO, 6),
+        "CMD": (Status.DESVIO, 2),
+        "ID": (Status.SHIFT, 5),
+        "WHILE": (Status.SHIFT, 7),
+        "ECHO": (Status.SHIFT, 4),
+        "VAR": (Status.DESVIO, 79),
+        "VARS":(Status.DESVIO, 80)
     },
     29: {
         "FECHA_CHAVE": (Status.SHIFT, 30)
@@ -126,7 +186,8 @@ ACTION = {
         "FECHA_CHAVE": (Status.REDUZ, 12),
         "WHILE": (Status.REDUZ, 12),
         "ECHO": (Status.REDUZ, 12),
-        "ELSE": (Status.SHIFT, 34)
+        "ELSE": (Status.SHIFT, 34),
+        "PFALSA": (Status.DESVIO, 31)
     },
     31: {
         "FECHAPHP": (Status.REDUZ, 12),
@@ -147,20 +208,33 @@ ACTION = {
         "ECHO": (Status.REDUZ, 13)
     },
     34: {
-        "FECHA_CHAVE": (Status.SHIFT, 35)
+        "ABRE_CHAVE": (Status.SHIFT, 35)
     },
     35: {
+        "ID": (Status.SHIFT, 5),
+        "IF": (Status.SHIFT, 3),
+        "WHILE": (Status.SHIFT, 7),
+        "ECHO": (Status.SHIFT, 4),
         "FECHAPHP": (Status.REDUZ, 10),
-        "FECHA_CHAVE": (Status.REDUZ, 10)
+        "FECHA_CHAVE": (Status.REDUZ, 10),
+        "DC": (Status.DESVIO, 16),
+        "CMDS": (Status.DESVIO, 67),
+        "CMD_COND": (Status.DESVIO, 6),
+        "CMD": (Status.DESVIO, 2),
+        "VAR": (Status.DESVIO, 79),
+        "VARS": (Status.DESVIO, 80)
     },
     36: {
-        "VIRGULA": (Status.SHIFT, 14)
+        "VIRGULA": (Status.SHIFT, 14),
+        "PONTOVIRG": (Status.REDUZ, 6),
+        "MAIS_VAR": (Status.DESVIO, 82)
     },
     37: {
         "PONTOVIRG": (Status.REDUZ, 18)
     },
     38: {
-        "IF": (Status.REDUZ, 36),
+        "PONTOVIRG": (Status.REDUZ, 36),
+        "FECHA_PAR": (Status.REDUZ, 36),
         "IGUAL_IGUAL": (Status.REDUZ, 36),
         "DIFERENTE": (Status.REDUZ, 36),
         "MAIOR_IGUAL": (Status.REDUZ, 36),
@@ -168,9 +242,13 @@ ACTION = {
         "MENOR": (Status.REDUZ, 36),
         "MAIOR": (Status.REDUZ, 36),
         "MENOS": (Status.SHIFT, 46),
-        "MAIS": (Status.SHIFT, 45)
+        "MAIS": (Status.SHIFT, 45),
+        "OUTROS_TERMOS": (Status.DESVIO, 39),
+        "OP_AD": (Status.DESVIO, 40)
     },
     39: {
+        "PONTOVIRG": (Status.REDUZ, 28),
+        "FECHA_PAR": (Status.REDUZ, 28),
         "IF": (Status.REDUZ, 28),
         "IGUAL_IGUAL": (Status.REDUZ, 28),
         "DIFERENTE": (Status.REDUZ, 28),
@@ -180,15 +258,18 @@ ACTION = {
         "MAIOR": (Status.REDUZ, 28)
     },
     40: {
-        "ID": (Status.REDUZ, 21),
-        "ABRE_PAR": (Status.REDUZ, 21),
-        "NUM_REAL": (Status.REDUZ, 21),
-        "MENOS": (Status.SHIFT, 50)
+        "ID": (Status.REDUZ, 31),
+        "ABRE_PAR": (Status.REDUZ, 31),
+        "NUM_REAL": (Status.REDUZ, 31),
+        "MENOS": (Status.SHIFT, 50),
+        "TERMO": (Status.DESVIO, 42),
+        "OP_UN": (Status.DESVIO, 41)
     },
     41: {
         "ID": (Status.SHIFT, 47),
         "FECHA_PAR": (Status.SHIFT, 43),
-        "NUM_REAL": (Status.SHIFT, 48)
+        "NUM_REAL": (Status.SHIFT, 48),
+        "FATOR": (Status.DESVIO, 43)
     },
     42: {
         "PONTOVIRG": (Status.REDUZ, 36),
@@ -200,7 +281,9 @@ ACTION = {
         "MENOR": (Status.REDUZ, 36),
         "MAIOR": (Status.REDUZ, 36),
         "MENOS": (Status.SHIFT, 46),
-        "MAIS": (Status.SHIFT, 45)
+        "MAIS": (Status.SHIFT, 45),
+        "OUTROS_TERMOS": (Status.DESVIO, 44),
+        "OP_AD": (Status.DESVIO, 40)
     },
     43: {
         "PONTOVIRG": (Status.REDUZ, 39),
@@ -214,7 +297,9 @@ ACTION = {
         "MENOS": (Status.REDUZ, 39),
         "MAIS": (Status.REDUZ, 39),
         "MULT": (Status.SHIFT, 53),
-        "DIV": (Status.SHIFT, 54)
+        "DIV": (Status.SHIFT, 54),
+        "MAIS_FATORES": (Status.DESVIO, 69),
+        "OP_MUL": (Status.DESVIO, 70)
     },
     44: {
         "PONTOVIRG": (Status.REDUZ, 35),
@@ -270,7 +355,10 @@ ACTION = {
         "ID": (Status.REDUZ, 30),
         "FECHA_PAR": (Status.REDUZ, 30),
         "NUM_REAL": (Status.REDUZ, 30),
-        "MENOS": (Status.SHIFT, 50)
+        "MENOS": (Status.SHIFT, 50),
+        "EXPRESSAO": (Status.DESVIO, 51),
+        "TERMO": (Status.DESVIO, 38),
+        "OP_UN": (Status.DESVIO, 41)
     },
     50: {
         "ID": (Status.REDUZ, 30),
@@ -306,7 +394,7 @@ ACTION = {
     },
     56: {
       "FECHAPHP": (Status.REDUZ, 8),  
-      "WHILE": (Status.REDUZ, 8)
+      "FECHA_CHAVE": (Status.REDUZ, 8)
     },
     57: {
         "IGUAL_IGUAL": (Status.SHIFT, 73),
@@ -314,13 +402,17 @@ ACTION = {
         "MAIOR_IGUAL": (Status.SHIFT, 75),
         "MENOR_IGUAL": (Status.SHIFT, 76),
         "MENOR": (Status.SHIFT, 78),
-        "MAIOR": (Status.SHIFT, 77)
+        "MAIOR": (Status.SHIFT, 77),
+        "RELACAO": (Status.DESVIO, 58)
     },
     58: {
         "ID": (Status.REDUZ, 31),
         "ABRE_PAR": (Status.REDUZ, 31),
         "NUM_REAL": (Status.REDUZ, 31),
-        "MENOS": (Status.SHIFT, 50)
+        "MENOS": (Status.SHIFT, 50),
+        "EXPRESSAO": (Status.DESVIO, 59),
+        "TERMO": (Status.DESVIO, 38),
+        "OP_UN": (Status.DESVIO, 41)
     },
     59: {
         "FECHA_PAR": (Status.REDUZ, 21)
@@ -341,7 +433,7 @@ ACTION = {
         "FECHA_PAR": (Status.SHIFT, 65)
     },
     65: {
-        "FECHA_CHAVE": (Status.SHIFT, 66)
+        "FECHA_PAR": (Status.SHIFT, 66)
     },
     66: {
         "PONTOVIRG": (Status.REDUZ, 20)
@@ -365,7 +457,9 @@ ACTION = {
         "MAIOR_IGUAL": (Status.REDUZ, 29),
         "MENOR_IGUAL": (Status.REDUZ, 29),
         "MENOR": (Status.REDUZ, 29),
-        "MAIOR": (Status.REDUZ, 29)
+        "MAIOR": (Status.REDUZ, 29),
+        "MENOS": (Status.REDUZ, 29),
+        "MAIS": (Status.REDUZ, 29)
     },
     70: {
         "ID": (Status.SHIFT, 47),
@@ -382,7 +476,9 @@ ACTION = {
         "MENOR": (Status.REDUZ, 39),
         "MAIOR": (Status.REDUZ, 39),
         "MULT": (Status.SHIFT, 53),
-        "DIV": (Status.SHIFT, 54)
+        "DIV": (Status.SHIFT, 54),
+        "MAIS_FATORES": (Status.DESVIO, 72),
+        "OP_MUL": (Status.DESVIO, 70)
     },
     72: {
         "PONTOVIRG": (Status.REDUZ, 38),
@@ -431,7 +527,8 @@ ACTION = {
         "NUM_REAL": (Status.REDUZ, 27)
     },
     79: {
-        "PONTOVIRG": (Status.SHIFT, 9)
+        "PONTOVIRG": (Status.SHIFT, 9),
+        "MAIS_CMDS": (Status.DESVIO, 81)
     },
     80: {
         "PONTOVIRG": (Status.REDUZ, 3)
@@ -439,117 +536,9 @@ ACTION = {
     81: {
         "FECHAPHP": (Status.REDUZ, 2),
         "FECHA_CHAVE": (Status.REDUZ, 2)
-    }
-
-}
-
-GOTO = {
-    1: {
-        "DC": 1,
-        "VAR": 79,
-        "VARS": 80,
-        "CMDS": 17,
-        "CMD_COND": 6,
-        "CMD": 2
     },
-    2: {
-        "MAIS_CMDS": 16
-    },
-    5: {
-        "MAIS_VAR": 15,
-        "RESTO_IDENT": 12
-    },
-    6: {
-        "DC": 16, 
-        "CMDS": 56,
-        "CMD_COND": 6,
-        "CMD": 2
-    },
-    9: {
-        "DC": 16,
-        "CMDS": 22,
-        "CMD_COND": 6
-    },
-    10: {
-        "CONDICAO": 23,
-        "EXPRESSAO": 57,
-        "TERMO": 38,
-        "OP_UN": 41
-    },
-    11: {
-        "CONDICAO": 24,
-        "EXPRESSAO": 57,
-        "TERMO": 38,
-        "OP_UN": 41
-    },
-    13: {
-        "EXP_IDENT": 37,
-        "EXPRESSAO": 60,
-        "TERMO": 38,
-        "OP_UN": 41
-    },
-    27: {
-        "DC": 16,
-        "CMDS": 32,
-        "CMD_COND": 6,
-        "CMD": 2
-    },
-    28: {
-        "DC": 16,
-        "CMDS": 29,
-        "CMD_COND": 6,
-        "CMD": 2
-    },
-    30: {
-        "CMD": 31
-    },
-    35: {
-        "DC": 16,
-        "CMDS": 67,
-        "CMD_COND": 6,
-        "CMD": 2
-    },
-    36: {
-        "MAIS_VAR": 15
-    },
-    38: {
-        "OUTROS_TERMOS": 39,
-        "OP_AD": 40
-    },
-    40: {
-        "TERMO": 42,
-        "OP_UN": 41
-    },
-    41: {
-        "FATOR": 43
-    },
-    42: {
-        "OUTROS_TERMOS": 44,
-        "OP_AD": 40
-    },
-    43: {
-        "MAIS_FATORES": 69,
-        "OP_MUL": 70
-    },
-    49: {
-        "EXPRESSAO": 51,
-        "TERMO": 38,
-        "OP_UN": 41
-    },
-    57: {
-        "RELACAO": 58
-    },
-    58: {
-        "EXPRESSAO": 59,
-        "TERMO": 38,
-        "OP_UN": 41
-    },
-    71: {
-        "MAIS_FATORES": 72,
-        "OP_MUL": 70
-    },
-    79: {
-        "MAIS_CMDS": 81
+    82: {
+        "PONTOVIRG": (Status.REDUZ, 5)
     }
 }
 
@@ -599,23 +588,39 @@ GRAMATICA = {
 }
 
 def analisador_sintatico(tokens):
-    pilha_estados = [0] 
-    pilha_simbolos = []
-    pilha_semantica = []
-    i = 0
-    acao = ""
+    pilha_estado = [0]
+    simbolos = []
     entrada = tokens
-    entrada.append(None)
-    while entrada:
-        chave = entrada[0]
-        if ACTION[pilha_estados[-1]][chave]:
-            acao, estado = ACTION[pilha_estados[-1]][chave]
+    entrada.append(("FIMDECADEIA", "&")) #fim de cadeia :D
+    entrada_atual = entrada[0][0]
+    acao = ""
+    try:
+        while entrada:
+            pos = pilha_estado[-1]
+            acao, pos = ESTADOS[pos][entrada_atual]
+
+            if acao == "SUCESSO":
+                print("SIMMMM")
+                return True
             if acao == Status.SHIFT:
-                pilha_simbolos.append(entrada.pop(0))
-                pilha_estados.append(estado)
+                simbolos.append(entrada.pop(0))
+                pilha_estado.append(pos)
+                entrada_atual = entrada[0][0]
             elif acao == Status.REDUZ:
-                nome_subst, qtd_subst = GRAMATICA[estado]
-                for i in range(qtd_subst):
-                    pilha_estados.pop()
-                    pilha_semantica.pop()
-                    pilha_semantica.append(nome_subst)
+                palavra, qtd_subs = GRAMATICA[pos]
+                for i in range(qtd_subs):
+                    simbolos.pop()
+                    pilha_estado.pop()
+                simbolos.append(palavra)
+                entrada_atual = palavra
+            elif acao == Status.DESVIO:
+                pilha_estado.append(pos)
+                entrada_atual = entrada[0][0]
+            print(f"Estados: {pilha_estado}")
+            print(f"Simbolo: {simbolos}")
+            print(f"Entrada: {entrada}")
+            print(f"Ação: {acao}")
+            print("-------------------------------------------------------")
+    except NameError:
+        print(NameError)
+        print("ERRO!")
