@@ -1,19 +1,23 @@
 from enum import Enum
+class Status(Enum):
+    SHIFT = "S"
+    REDUZ = "R"
+    DESVIO = "D"
+    SUCESSO = "A"
 
 def analisador_sintatico(tokens):
     pilha_estado = [0]
     simbolos = []
     entrada = tokens
-    entrada.append(("FIMDECADEIA", "&")) #fim de cadeia :D
+    entrada.append(("FIMDECADEIA", "&")) # fim de cadeia :D
     entrada_atual = entrada[0][0]
-    acao = ""
     try:
         while entrada:
             pos = pilha_estado[-1]
             acao, pos = ESTADOS[pos][entrada_atual]
 
-            if acao == "SUCESSO":
-                print("SIMMMM")
+            if acao == Status.SUCESSO:
+                print("SUCESSO!")
                 return True
             if acao == Status.SHIFT:
                 simbolos.append(entrada.pop(0))
@@ -29,14 +33,10 @@ def analisador_sintatico(tokens):
             elif acao == Status.DESVIO:
                 pilha_estado.append(pos)
                 entrada_atual = entrada[0][0]
-            print(f"Estados: {pilha_estado}")
-            print(f"Simbolo: {simbolos}")
-            print(f"Entrada: {entrada}")
-            print(f"Ação: {acao}")
-            print("-------------------------------------------------------")
-    except NameError:
-        print(NameError)
-        print("ERRO!")
+    except KeyError:
+        print("ERRO! Símbolo inesperado na entrada.")
+        return False
+    return False
 
 ESTADOS = {
     0: {"ABREPHP": (Status.SHIFT, 1)},
@@ -153,7 +153,7 @@ ESTADOS = {
         "FECHAPHP": (Status.SHIFT, 18)
     },
     18: {
-        "FIMDECADEIA": ("SUCESSO", 9999)
+        "FIMDECADEIA": (Status.SUCESSO, "OK")
     },
     19: {
         "PHP_EOL": (Status.SHIFT, 20)
@@ -619,7 +619,3 @@ GRAMATICA = {
     41: ("OP_MUL", 1),
     42: ("OP_AD", 1)
 }
-class Status(Enum):
-    SHIFT = "S"
-    REDUZ = "R"
-    DESVIO = "D"
