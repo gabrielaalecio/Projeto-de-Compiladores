@@ -1,9 +1,42 @@
 from enum import Enum
 
-class Status(Enum):
-    SHIFT = "S"
-    REDUZ = "R"
-    DESVIO = "D"
+def analisador_sintatico(tokens):
+    pilha_estado = [0]
+    simbolos = []
+    entrada = tokens
+    entrada.append(("FIMDECADEIA", "&")) #fim de cadeia :D
+    entrada_atual = entrada[0][0]
+    acao = ""
+    try:
+        while entrada:
+            pos = pilha_estado[-1]
+            acao, pos = ESTADOS[pos][entrada_atual]
+
+            if acao == "SUCESSO":
+                print("SIMMMM")
+                return True
+            if acao == Status.SHIFT:
+                simbolos.append(entrada.pop(0))
+                pilha_estado.append(pos)
+                entrada_atual = entrada[0][0]
+            elif acao == Status.REDUZ:
+                palavra, qtd_subs = GRAMATICA[pos]
+                for i in range(qtd_subs):
+                    simbolos.pop()
+                    pilha_estado.pop()
+                simbolos.append(palavra)
+                entrada_atual = palavra
+            elif acao == Status.DESVIO:
+                pilha_estado.append(pos)
+                entrada_atual = entrada[0][0]
+            print(f"Estados: {pilha_estado}")
+            print(f"Simbolo: {simbolos}")
+            print(f"Entrada: {entrada}")
+            print(f"Ação: {acao}")
+            print("-------------------------------------------------------")
+    except NameError:
+        print(NameError)
+        print("ERRO!")
 
 ESTADOS = {
     0: {"ABREPHP": (Status.SHIFT, 1)},
@@ -586,41 +619,7 @@ GRAMATICA = {
     41: ("OP_MUL", 1),
     42: ("OP_AD", 1)
 }
-
-def analisador_sintatico(tokens):
-    pilha_estado = [0]
-    simbolos = []
-    entrada = tokens
-    entrada.append(("FIMDECADEIA", "&")) #fim de cadeia :D
-    entrada_atual = entrada[0][0]
-    acao = ""
-    try:
-        while entrada:
-            pos = pilha_estado[-1]
-            acao, pos = ESTADOS[pos][entrada_atual]
-
-            if acao == "SUCESSO":
-                print("SIMMMM")
-                return True
-            if acao == Status.SHIFT:
-                simbolos.append(entrada.pop(0))
-                pilha_estado.append(pos)
-                entrada_atual = entrada[0][0]
-            elif acao == Status.REDUZ:
-                palavra, qtd_subs = GRAMATICA[pos]
-                for i in range(qtd_subs):
-                    simbolos.pop()
-                    pilha_estado.pop()
-                simbolos.append(palavra)
-                entrada_atual = palavra
-            elif acao == Status.DESVIO:
-                pilha_estado.append(pos)
-                entrada_atual = entrada[0][0]
-            print(f"Estados: {pilha_estado}")
-            print(f"Simbolo: {simbolos}")
-            print(f"Entrada: {entrada}")
-            print(f"Ação: {acao}")
-            print("-------------------------------------------------------")
-    except NameError:
-        print(NameError)
-        print("ERRO!")
+class Status(Enum):
+    SHIFT = "S"
+    REDUZ = "R"
+    DESVIO = "D"
