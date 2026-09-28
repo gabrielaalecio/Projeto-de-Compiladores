@@ -15,7 +15,6 @@ def analisador_sintatico(tokens):
         while entrada:
             pos = pilha_estado[-1]
             acao, pos = ESTADOS[pos][entrada_atual]
-
             if acao == Status.SUCESSO:
                 print("SUCESSO!")
                 return True
@@ -618,4 +617,8 @@ GRAMATICA = {
     40: ("OP_MUL", 1),
     41: ("OP_MUL", 1),
     42: ("OP_AD", 1)
+}
+
+TRADUTOR = {
+    
 }
