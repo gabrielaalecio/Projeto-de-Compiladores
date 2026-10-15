@@ -5,9 +5,17 @@ class Status(Enum):
     DESVIO = "D"
     SUCESSO = "A"
 
+class Simbolo():
+    def __init__(self, key, valor):
+        self.key = key
+        self.valor = valor
+
 def analisador_sintatico(tokens):
     pilha_estado = [0]
     simbolos = []
+    tabela_simbolos = []
+    arvore_simbolos = []
+    aux = []
     entrada = tokens
     entrada.append(("FIMDECADEIA", "&")) # fim de cadeia :D
     entrada_atual = entrada[0][0]
@@ -15,10 +23,17 @@ def analisador_sintatico(tokens):
         while entrada:
             pos = pilha_estado[-1]
             acao, pos = ESTADOS[pos][entrada_atual]
+            if len(simbolos) > 0 and simbolos[-1][0] == "ID":
+                if not simbolos[-1][1] in tabela_simbolos:
+                    simb = Simbolo(simbolos[-1][1], None)
+                    tabela_simbolos.append(simb)
+
             if acao == Status.SUCESSO:
                 print("SUCESSO!")
+                print(tabela_simbolos)
                 return True
             if acao == Status.SHIFT:
+                aux = entrada[0]
                 simbolos.append(entrada.pop(0))
                 pilha_estado.append(pos)
                 entrada_atual = entrada[0][0]
@@ -33,6 +48,7 @@ def analisador_sintatico(tokens):
                 pilha_estado.append(pos)
                 entrada_atual = entrada[0][0]
     except KeyError:
+        print(simbolos)
         print("ERRO! Símbolo inesperado na entrada.")
         return False
     return False
@@ -46,7 +62,7 @@ ESTADOS = {
         "IF": (Status.SHIFT, 3),
         "WHILE": (Status.SHIFT, 7),
         "ECHO": (Status.SHIFT, 4),
-        "DC": (Status.DESVIO, 1),
+        "DC": (Status.DESVIO, 16),
         "VAR": (Status.DESVIO, 79),
         "VARS":(Status.DESVIO, 80),
         "CMDS": (Status.DESVIO, 17),
@@ -212,12 +228,12 @@ ESTADOS = {
         "FECHA_CHAVE": (Status.SHIFT, 30)
     },
     30: {
-        "FECHAPHP": (Status.REDUZ, 12),
-        "ID": (Status.REDUZ, 12),
-        "IF": (Status.REDUZ, 12),
-        "FECHA_CHAVE": (Status.REDUZ, 12),
-        "WHILE": (Status.REDUZ, 12),
-        "ECHO": (Status.REDUZ, 12),
+        "FECHAPHP": (Status.REDUZ, 17),
+        "ID": (Status.REDUZ, 17),
+        "IF": (Status.REDUZ, 17),
+        "FECHA_CHAVE": (Status.REDUZ, 17),
+        "WHILE": (Status.REDUZ, 17),
+        "ECHO": (Status.REDUZ, 17),
         "ELSE": (Status.SHIFT, 34),
         "PFALSA": (Status.DESVIO, 31)
     },
@@ -234,6 +250,7 @@ ESTADOS = {
     },
     33: {
         "FECHAPHP": (Status.REDUZ, 13),
+        "FECHA_CHAVE": (Status.REDUZ, 13),
         "ID": (Status.REDUZ, 13),
         "IF": (Status.REDUZ, 13),
         "WHILE": (Status.REDUZ, 13),
@@ -299,7 +316,7 @@ ESTADOS = {
     },
     41: {
         "ID": (Status.SHIFT, 47),
-        "FECHA_PAR": (Status.SHIFT, 43),
+        "ABRE_PAR": (Status.SHIFT, 49),
         "NUM_REAL": (Status.SHIFT, 48),
         "FATOR": (Status.DESVIO, 43)
     },
@@ -380,7 +397,7 @@ ESTADOS = {
         "MAIOR": (Status.REDUZ, 33),
         "MENOS": (Status.REDUZ, 33),
         "MAIS": (Status.REDUZ, 33),
-        "MULT": (Status.REDUZ, 32),
+        "MULT": (Status.REDUZ, 33),
         "DIV": (Status.REDUZ, 33)
     },
     49: {
@@ -475,9 +492,9 @@ ESTADOS = {
     },
     68: {
         "FECHAPHP": (Status.REDUZ, 16),
+        "FECHA_CHAVE": (Status.REDUZ, 16),
         "ID": (Status.REDUZ, 16),
         "IF": (Status.REDUZ, 16),
-        "FECHA_PAR": (Status.REDUZ, 16), 
         "WHILE": (Status.REDUZ, 16), 
         "ECHO": (Status.REDUZ, 16)
     },
@@ -496,7 +513,8 @@ ESTADOS = {
     70: {
         "ID": (Status.SHIFT, 47),
         "ABRE_PAR": (Status.SHIFT, 49),
-        "NUM_REAL": (Status.SHIFT, 48)
+        "NUM_REAL": (Status.SHIFT, 48),
+        "FATOR": (Status.DESVIO, 71)
     },
     71: {
         "PONTOVIRG": (Status.REDUZ, 39),
@@ -507,6 +525,8 @@ ESTADOS = {
         "MENOR_IGUAL": (Status.REDUZ, 39),
         "MENOR": (Status.REDUZ, 39),
         "MAIOR": (Status.REDUZ, 39),
+        "MENOS": (Status.REDUZ, 39),
+        "MAIS":  (Status.REDUZ, 39),
         "MULT": (Status.SHIFT, 53),
         "DIV": (Status.SHIFT, 54),
         "MAIS_FATORES": (Status.DESVIO, 72),
@@ -520,41 +540,43 @@ ESTADOS = {
         "MAIOR_IGUAL": (Status.REDUZ, 38),
         "MENOR_IGUAL": (Status.REDUZ, 38),
         "MENOR": (Status.REDUZ, 38),
-        "MAIOR": (Status.REDUZ, 38)
+        "MAIOR": (Status.REDUZ, 38),
+        "MENOS": (Status.REDUZ, 38),
+        "MAIS":  (Status.REDUZ, 38),
     },
     73: {
         "ID": (Status.REDUZ, 22),
-        "FECHA_PAR": (Status.REDUZ, 22),
+        "ABRE_PAR": (Status.REDUZ, 22),
         "MENOS": (Status.REDUZ, 22),
         "NUM_REAL": (Status.REDUZ, 22)
     },
     74: {
         "ID": (Status.REDUZ, 23),
-        "FECHA_PAR": (Status.REDUZ, 23),
+        "ABRE_PAR": (Status.REDUZ, 23),
         "MENOS": (Status.REDUZ, 23),
         "NUM_REAL": (Status.REDUZ, 23)
     },
     75: {
         "ID": (Status.REDUZ, 24),
-        "FECHA_PAR": (Status.REDUZ, 24),
+        "ABRE_PAR": (Status.REDUZ, 24),
         "MENOS": (Status.REDUZ, 24),
         "NUM_REAL": (Status.REDUZ, 24)
     },
     76: {
         "ID": (Status.REDUZ, 25),
-        "FECHA_PAR": (Status.REDUZ, 25),
+        "ABRE_PAR": (Status.REDUZ, 25),
         "MENOS": (Status.REDUZ, 25),
         "NUM_REAL": (Status.REDUZ, 25)
     },
     77: {
         "ID": (Status.REDUZ, 26),
-        "FECHA_PAR": (Status.REDUZ, 26),
+        "ABRE_PAR": (Status.REDUZ, 26),
         "MENOS": (Status.REDUZ, 26),
         "NUM_REAL": (Status.REDUZ, 26)
     },
     78: {
         "ID": (Status.REDUZ, 27),
-        "FECHA_PAR": (Status.REDUZ, 27),
+        "ABRE_PAR": (Status.REDUZ, 27),
         "MENOS": (Status.REDUZ, 27),
         "NUM_REAL": (Status.REDUZ, 27)
     },
@@ -596,10 +618,10 @@ GRAMATICA = {
     19: ("EXP_IDENT", 1),
     20: ("EXP_IDENT", 6),
     21: ("CONDICAO", 3),
-    22: ("RELACAO", 2),
-    23: ("RELACAO", 2),
-    24: ("RELACAO", 2),
-    25: ("RELACAO", 2),
+    22: ("RELACAO", 1),
+    23: ("RELACAO", 1),
+    24: ("RELACAO", 1),
+    25: ("RELACAO", 1),
     26: ("RELACAO", 1),
     27: ("RELACAO", 1),
     28: ("EXPRESSAO", 2),
