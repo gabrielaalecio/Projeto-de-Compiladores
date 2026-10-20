@@ -1,4 +1,4 @@
 <?php
 $cont;
-$cont = 10;
+$cont = 10 + 1;
 ?>

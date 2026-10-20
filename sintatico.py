@@ -10,12 +10,45 @@ class Simbolo():
         self.key = key
         self.valor = valor
 
+class ReducaoGramatica():
+    def __init__(self, num_gramatica, filhos, pos):
+        self.num_gramatica = num_gramatica
+        self.filhos = filhos
+        self.pos = pos
+
+def gerar_codigo(lista_gramatica, pos_atual): #colocar na chamada len()
+    entrada = lista_gramatica[pos_atual]
+    nome, red = GRAMATICA[entrada.num_gramatica]
+    soma = red
+    aux = pos_atual
+    if red == 0:
+        return 0
+    while soma != 0:
+        --soma
+        --aux
+        entrada = lista_gramatica[aux]
+        match nome:
+            case "ABREPHP":
+                return "INPP"
+            case "FECHAPHP":
+                return "PARA"
+            case "OP_AD":
+                if entrada.num_gramatica == 37:
+                    return "SOMA"
+                else:
+                    return "SUBT"
+        
+
+    
+
+    return True
+
 def analisador_sintatico(tokens):
     pilha_estado = [0]
+    reducao = []
     simbolos = []
     tabela_simbolos = []
-    arvore_simbolos = []
-    aux = []
+    linhas = []
     entrada = tokens
     entrada.append(("FIMDECADEIA", "&")) # fim de cadeia :D
     entrada_atual = entrada[0][0]
@@ -23,25 +56,33 @@ def analisador_sintatico(tokens):
         while entrada:
             pos = pilha_estado[-1]
             acao, pos = ESTADOS[pos][entrada_atual]
+
             if len(simbolos) > 0 and simbolos[-1][0] == "ID":
                 if not simbolos[-1][1] in tabela_simbolos:
                     simb = Simbolo(simbolos[-1][1], None)
                     tabela_simbolos.append(simb)
-
             if acao == Status.SUCESSO:
                 print("SUCESSO!")
+                print("-----------------------------")
+                for i in reducao:
+                    print(f"{i.num_gramatica} -> {GRAMATICA[i.num_gramatica]}")
+                    print(i.filhos)
+                    print(i.pos)
+                    print("-----------------------------")
                 print(tabela_simbolos)
                 return True
             if acao == Status.SHIFT:
-                aux = entrada[0]
                 simbolos.append(entrada.pop(0))
                 pilha_estado.append(pos)
                 entrada_atual = entrada[0][0]
             elif acao == Status.REDUZ:
+                vars = []
                 palavra, qtd_subs = GRAMATICA[pos]
                 for i in range(qtd_subs):
+                    vars.append(simbolos[-1])
                     simbolos.pop()
                     pilha_estado.pop()
+                reducao.append(ReducaoGramatica(pos, vars, len(reducao)))
                 simbolos.append(palavra)
                 entrada_atual = palavra
             elif acao == Status.DESVIO:
@@ -639,8 +680,4 @@ GRAMATICA = {
     40: ("OP_MUL", 1),
     41: ("OP_MUL", 1),
     42: ("OP_AD", 1)
-}
-
-TRADUTOR = {
-    
 }
