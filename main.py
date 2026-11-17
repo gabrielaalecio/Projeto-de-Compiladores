@@ -11,6 +11,8 @@ if tokens is None:
 #Analisador Sintático - Ascendente
 codigo_objeto = sintatico.analisador_sintatico(tokens)
 
+with open("resultado.txt", "w", encoding="utf-8") as arquivo:
+  for item in codigo_objeto:
+    arquivo.write(f"{item}\n")
 
-
-resultado = maquina.rodar_codigo(codigo_objeto)
+resultado = maquina.rodar_codigo()

@@ -154,8 +154,7 @@ def analisador_sintatico(tokens):
             if acao == Status.SUCESSO:
                 print("SUCESSO!")
                 print("-----------------------------")
-                print(gerar_codigo(reducao))
-                return simbolos
+                return gerar_codigo(reducao)
             if acao == Status.SHIFT:
                 simbolos.append(entrada.pop(0))
                 pilha_estado.append(pos)
