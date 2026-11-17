@@ -16,32 +16,122 @@ class ReducaoGramatica():
         self.filhos = filhos
         self.pos = pos
 
-def gerar_codigo(lista_gramatica, pos_atual): #colocar na chamada len()
-    entrada = lista_gramatica[pos_atual]
-    nome, red = GRAMATICA[entrada.num_gramatica]
-    soma = red
-    aux = pos_atual
-    if red == 0:
-        return 0
-    while soma != 0:
-        --soma
-        --aux
-        entrada = lista_gramatica[aux]
-        match nome:
-            case "ABREPHP":
-                return "INPP"
-            case "FECHAPHP":
-                return "PARA"
-            case "OP_AD":
-                if entrada.num_gramatica == 37:
-                    return "SOMA"
-                else:
-                    return "SUBT"
-        
+def gerar_codigo(lista_gramatica):
+    REL = {22: "CPIG", 23: "CDES", 24: "CMAI", 25: "CPMI", 26: "CPMA", 27: "CPME"}
+    tabela = {}        # variável -> endereço
+    rotulos = [0]
+    pilha = []         # um fragmento por não-terminal ainda sem "pai"
 
-    
+    def novo_rotulo():
+        rotulos[0] += 1
+        return f"L{rotulos[0]}"
 
-    return True
+    def endereco(nome):
+        if nome not in tabela:
+            raise ValueError(f"Variável '{nome}' usada sem declaração.")
+        return tabela[nome]
+
+    try:
+        for r in lista_gramatica:
+            a = []
+            for f in r.filhos:
+                a.append(f[1] if isinstance(f, tuple) else pilha.pop())
+            a.reverse()                  
+            print(f"--------{r.num_gramatica}--------")
+            print(f"a: {a}")
+            print(f"Pilha Antes: {pilha}")
+            match r.num_gramatica:
+                case 2:  cod = a[1]                          # DC -> VAR MAIS_CMDS
+                case 3:                                      # VAR -> VARS
+                    for nome in a[0]:
+                        if nome in tabela:
+                            raise ValueError(f"Variável '{nome}' declarada mais de uma vez.")
+                        tabela[nome] = len(tabela)
+                    cod = []
+                case 4:  cod = [a[0]] + a[1]                 # VARS -> ID MAIS_VAR
+                case 5:  cod = [a[1]] + a[2]                 # MAIS_VAR -> , ID MAIS_VAR
+                case 6:  cod = []                            # MAIS_VAR -> ε
+
+                # ---------- comandos ----------
+                case 7 | 8:  cod = a[0] + a[1]               # CMDS -> CMD MAIS_CMDS | CMD_COND CMDS
+                case 9:      cod = a[0]                      # CMDS -> DC
+                case 10:     cod = []                        # CMDS -> ε
+                case 11:     cod = a[1]                      # MAIS_CMDS -> ; CMDS
+
+                case 12:                                     # IF ( COND ) { CMDS } PFALSA
+                    cond, corpo, falsa = a[2], a[5], a[7]
+                    if falsa is None:
+                        l_fim = novo_rotulo()
+                        cod = cond + [f"DSVF {l_fim}"] + corpo + [f"{l_fim}:"]
+                    else:
+                        l_else, l_fim = novo_rotulo(), novo_rotulo()
+                        cod = (cond + [f"DSVF {l_else}"] + corpo + [f"DSVI {l_fim}", f"{l_else}:"]
+                               + falsa + [f"{l_fim}:"])
+                case 13:                                     # WHILE ( COND ) { CMDS }
+                    l_ini, l_fim = novo_rotulo(), novo_rotulo()
+                    cod = ([f"{l_ini}:"] + a[2] + [f"DSVF {l_fim}"] + a[5]
+                           + [f"DSVI {l_ini}", f"{l_fim}:"])
+
+                case 14: cod = [f"CRVL {endereco(a[1])}", "IMPR"]    # ECHO ID . PHP_EOL
+                case 15: cod = a[1] + [f"ARMZ {endereco(a[0])}"]     # ID RESTO_IDENT
+                case 16: cod = a[2]                                  # PFALSA -> ELSE { CMDS }
+                case 17: cod = None                                  # PFALSA -> ε (sem else)
+
+                case 18: cod = a[1]                          # RESTO_IDENT -> = EXP_IDENT
+                case 19: cod = a[0]                          # EXP_IDENT -> EXPRESSAO
+                case 20: cod = ["LEIT"]                      # EXP_IDENT -> floatval(readline())
+
+                # ---------- condição e expressões ----------
+                case 21: cod = a[0] + a[2] + a[1]            # EXPR RELACAO EXPR
+                case 22 | 23 | 24 | 25 | 26 | 27: cod = [REL[r.num_gramatica]]
+
+                case 28: cod = a[0] + a[1]                   # EXPRESSAO -> TERMO OUTROS_TERMOS
+                case 29: cod = a[1] + a[0] + a[2]            # TERMO -> OP_UN FATOR MAIS_FATORES
+                case 30: cod = ["INVE"]                      # OP_UN -> -
+                case 31: cod = []                            # OP_UN -> ε
+
+                case 32: cod = [f"CRVL {endereco(a[0])}"]    # FATOR -> ID
+                case 33: cod = [f"CRCT {a[0]}"]              # FATOR -> NUM_REAL
+                case 34: cod = a[1]                          # FATOR -> ( EXPRESSAO )
+
+                # operando, depois operador, depois o resto => associatividade à esquerda
+                case 35 | 38: cod = a[1] + a[0] + a[2]
+                case 36 | 39: cod = []
+
+                case 37: cod = ["SOMA"]
+                case 42: cod = ["SUBT"]
+                case 40: cod = ["MULT"]
+                case 41: cod = ["DIVI"]
+
+                case _:
+                    raise ValueError(f"Produção {r.num_gramatica} sem tradução.")
+
+            pilha.append(cod)
+            print(f"Pilha Depois: {pilha}")
+    except ValueError as e:
+        print(f"ERRO SEMÂNTICO: {e}")
+        return None
+
+    # PROG -> ABREPHP CMDS FECHAPHP (ABREPHP/FECHAPHP são terminais: nunca são reduzidos)
+    codigo = ["INPP"]
+    if tabela:
+        codigo.append(f"ALME {len(tabela)}")      # um único ALME com o total
+    codigo += pilha[-1] + ["PARA"]
+
+    # troca rótulos (L1:, DSVF L1) por endereços
+    destino, instrucoes = {}, []
+    for ins in codigo:
+        if ins.endswith(":"):
+            destino[ins[:-1]] = len(instrucoes)   # use +1 se sua máquina conta do 1
+        else:
+            instrucoes.append(ins)
+    final = []
+    for ins in instrucoes:
+        op, *arg = ins.split()
+        if op in ("DSVI", "DSVF"):
+            ins = f"{op} {destino[arg[0]]}"
+        final.append(ins)
+    return final
 
 def analisador_sintatico(tokens):
     pilha_estado = [0]
@@ -64,13 +154,8 @@ def analisador_sintatico(tokens):
             if acao == Status.SUCESSO:
                 print("SUCESSO!")
                 print("-----------------------------")
-                for i in reducao:
-                    print(f"{i.num_gramatica} -> {GRAMATICA[i.num_gramatica]}")
-                    print(i.filhos)
-                    print(i.pos)
-                    print("-----------------------------")
-                print(tabela_simbolos)
-                return True
+                print(gerar_codigo(reducao))
+                return simbolos
             if acao == Status.SHIFT:
                 simbolos.append(entrada.pop(0))
                 pilha_estado.append(pos)

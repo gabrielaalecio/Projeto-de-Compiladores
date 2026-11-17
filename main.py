@@ -1,4 +1,4 @@
-import lexico, sintatico
+import lexico, sintatico, maquina
 
 with open('correto.php.txt') as arquivo:
     codigo = arquivo.read()
@@ -10,3 +10,7 @@ if tokens is None:
 
 #Analisador Sintático - Ascendente
 codigo_objeto = sintatico.analisador_sintatico(tokens)
+
+
+
+resultado = maquina.rodar_codigo(codigo_objeto)
