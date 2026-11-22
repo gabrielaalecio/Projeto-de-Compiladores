@@ -8,6 +8,9 @@ Ele lê um programa escrito em um subconjunto de PHP, faz a análise léxica, an
 * Tenha o Python instalado na máquina (versão 3.10 ou superior, pois o projeto usa `match/case`);
 * Não é necessário instalar nenhuma biblioteca externa;
 
+## Inteligência Artificial
+Foi utilizado o Claude para auxiliar no desenvolvimento do código.
+
 ## Arquivos do projeto
 
 | Arquivo | Função |
@@ -47,7 +50,7 @@ while ($cont > 0) {
   $a = floatval(readline());
   $b = floatval(readline());
   if ($a > $b) {
-    $c = - $a - $b;
+    $c = $a - $b;
   } else {
     $c = $b - $a;
   }
@@ -63,23 +66,6 @@ No fim, imprime de novo o último resultado. Entrada e saída de exemplo (digite
 
 | `$a` | `$b` | Saída esperada |
 |---|---|---|
-| 5 | 3 | `-8.0` |
+| 5 | 3 | `2.0` |
 | 2 | 8 | `6.0` |
 | 1 | 1 | `0.0` |
-| 9 | 7 | `-16.0` |
-
-Trecho do `resultado.txt` gerado (início do programa e do laço):
-
-```
-INPP
-ALME 1
-ALME 1
-ALME 1
-ALME 1
-CRCT 10
-ARMZ 0
-CRVL 0
-CRCT 0
-CPMA
-DSVF 37
-...
