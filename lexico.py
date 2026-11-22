@@ -62,7 +62,7 @@ def analisador_lexico(codigo):
             linha, posicao = contar_linhas(codigo, match.start())
             erro = f"Caractere inválido: '{lexema}' na linha {linha}, posição {posicao}"
             print(erro)
-            return None
+            exit(1)
 
         if tipo == 'ID' or tipo == 'NUM_REAL':
             if lexema not in unicos:
@@ -70,4 +70,3 @@ def analisador_lexico(codigo):
 
         tokens.append((tipo, lexema))
     return tokens
-
