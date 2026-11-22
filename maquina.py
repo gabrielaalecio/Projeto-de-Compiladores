@@ -1,7 +1,6 @@
 def rodar_codigo():
     with open('resultado.txt') as arquivo:
         codigo = arquivo.read().split("\n")
-    print(codigo)
     indice = 0
     lista_vars = []
     pilha = []
