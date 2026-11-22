@@ -37,38 +37,5 @@ Para executar de novo o `resultado.txt` já gerado, sem compilar outra vez:
 python -c "import maquina; maquina.rodar_codigo()"
 ```
 
-## Exemplo
-
-Conteúdo do `correto.php.txt`:
-
-```php
-<?php
-$cont;
-$a,$b,$c;
-$cont = 10;
-while ($cont > 0) {
-  $a = floatval(readline());
-  $b = floatval(readline());
-  if ($a > $b) {
-    $c = $a - $b;
-  } else {
-    $c = $b - $a;
-  }
-  echo $c . PHP_EOL;
-  $cont = $cont - 1;
-}
-  echo $c . PHP_EOL;
-?>
-```
-
-O programa lê 10 pares de números (`$a` e `$b`) e, para cada par, imprime `-$a - $b` se `$a > $b`, ou `$b - $a` caso contrário.
-No fim, imprime de novo o último resultado. Entrada e saída de exemplo (digite um número por linha):
-
-| `$a` | `$b` | Saída esperada |
-|---|---|---|
-| 5 | 3 | `2.0` |
-| 2 | 8 | `6.0` |
-| 1 | 1 | `0.0` |
-
 ## GitHub
 Link para o repositório do Projeto: https://github.com/gabrielaalecio/Projeto-de-Compiladores
