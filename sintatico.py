@@ -191,6 +191,9 @@ def analisador_sintatico(tokens):
     except KeyError:
         print("ERRO! Símbolo inesperado na entrada.")
         return False
+    except ValueError as erro:
+        print(f"ERRO SEMÂNTICO: {erro}")
+        return False
     return False
 
 ESTADOS = {
